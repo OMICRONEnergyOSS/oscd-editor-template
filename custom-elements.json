@@ -1,0 +1,750 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "foundation.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` * { --md-sys-color-primary: var(--oscd-primary); --md-sys-color-secondary: var(--oscd-secondary); --md-sys-typescale-body-large-font: var(--oscd-theme-text-font); --md-outlined-text-field-input-text-color: var(--oscd-base01); --md-sys-color-surface: var(--oscd-base3); --md-sys-color-on-surface: var(--oscd-base00); --md-sys-color-on-primary: var(--oscd-base2); --md-sys-color-on-surface-variant: var(--oscd-base00); } :host(.moving) section { opacity: 0.3; } section { background-color: var(--md-sys-color-surface); transition: all 200ms linear; outline-color: var(--md-sys-color-primary); outline-style: solid; outline-width: 0px; opacity: 1; } section:focus { box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2); } section:focus-within { outline-width: 2px; transition: all 250ms linear; } h1, h2, h3 { color: var(--md-sys-color-on-surface); font-family: 'Roboto', sans-serif; font-weight: 300; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; line-height: 48px; padding-left: 0.3em; transition: background-color 150ms linear; } section:focus-within > h1, section:focus-within > h2, section:focus-within > h3 { color: var(--md-sys-color-surface); background-color: var(--md-sys-color-primary); transition: background-color 200ms linear; } h1 > nav, h2 > nav, h3 > nav, h1 > abbr > md-filled-icon-button, h2 > abbr > md-filled-icon-button, h3 > abbr > md-filled-icon-button { float: right; } abbr[title] { border-bottom: none !important; cursor: inherit !important; text-decoration: none !important; } `",
+          "description": "Common `CSS` styles used by DataTypeTemplate subeditors"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "foundation.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "oscd-editor-template.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An editor [[`plugin`]] for editing the `DataTypeTemplates` section.",
+          "name": "OscdEditorTemplate",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'md-outline-button': MdOutlinedButton, 'md-filled-icon-button': MdFilledIconButton, 'md-icon': MdIcon, 'action-list': ActionList, 'oscd-editor-template-textfield': OscdEditorTemplateTextfield, 'oscd-edit-dialog': OscdEditDialog, }"
+            },
+            {
+              "kind": "field",
+              "name": "editor",
+              "type": {
+                "text": "Transactor<EditV2>"
+              },
+              "attribute": "editor"
+            },
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": {
+                "text": "XMLDocument"
+              },
+              "description": "The document being edited as provided to plugins by [[`OpenSCD`]]."
+            },
+            {
+              "kind": "field",
+              "name": "docName",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "docs",
+              "type": {
+                "text": "Record<string, XMLDocument>"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "editCount",
+              "type": {
+                "text": "unknown"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "selectedLNodeType",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "default": "undefined"
+            },
+            {
+              "kind": "field",
+              "name": "selectedDOType",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "default": "undefined"
+            },
+            {
+              "kind": "field",
+              "name": "selectedDAType",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "default": "undefined"
+            },
+            {
+              "kind": "field",
+              "name": "selectedEnumType",
+              "type": {
+                "text": "Element | null | undefined"
+              },
+              "default": "undefined"
+            },
+            {
+              "kind": "field",
+              "name": "dataTypeTemplate",
+              "type": {
+                "text": "Element | null"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "lNodeTypeDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "lNodeTypeInputs",
+              "type": {
+                "text": "OscdEditorTemplateTextfield[] | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "doTypeDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "doTypeInputs",
+              "type": {
+                "text": "OscdEditorTemplateTextfield[] | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "daTypeDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "daTypeInputs",
+              "type": {
+                "text": "OscdEditorTemplateTextfield[] | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "enumTypeDiff",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "enumTypeInputs",
+              "type": {
+                "text": "OscdEditorTemplateTextfield[] | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "editDialog",
+              "type": {
+                "text": "OscdEditDialog | undefined"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onLNodeTypeInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onSaveLNodeType",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onDOTypeInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onSaveDOType",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onDATypeInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onSaveDAType",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onEnumTypeInputChange",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onSaveEnumType",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleCreateElement",
+              "parameters": [
+                {
+                  "name": "createWizard",
+                  "type": {
+                    "text": "CreateWizard"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "handleEditElement",
+              "parameters": [
+                {
+                  "name": "editWizard",
+                  "type": {
+                    "text": "EditWizard"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "handleCloseWizardEvent"
+            },
+            {
+              "kind": "method",
+              "name": "selectReferencedChild",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "renderEnumTypeChildrenList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderEnumTypeList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDATypeChildrenList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDATypeList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDOTypeChildrenList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderDOTypeList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderLNodeTypeChildrenList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderLNodeTypeList",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "editor",
+              "type": {
+                "text": "Transactor<EditV2>"
+              },
+              "fieldName": "editor"
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "default",
+          "declaration": {
+            "name": "OscdEditorTemplate",
+            "module": "oscd-editor-template.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/OscdEditorTemplateTextfield.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "OscdEditorTemplateTextfield",
+          "members": [
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ 'md-outlined-field': MdOutlinedField, 'md-button': MdOutlinedButton, 'md-icon-button': MdIconButton, 'md-menu': MdMenu, 'md-switch': MdSwitch, 'md-list-item': MdListItem, }"
+            },
+            {
+              "kind": "field",
+              "name": "nullable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether [[`maybeValue`]] may be `null`",
+              "attribute": "nullable"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "multipliers",
+              "type": {
+                "text": "array"
+              },
+              "default": "[null, '']",
+              "description": "Selectable SI multipliers for a non-empty [[`unit`]].",
+              "attribute": "multipliers"
+            },
+            {
+              "kind": "field",
+              "name": "multiplierIndex",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "multiplier",
+              "type": {
+                "text": "string | null"
+              },
+              "attribute": "multiplier"
+            },
+            {
+              "kind": "field",
+              "name": "unit",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "SI Unit, must be non-empty to allow for selecting a [[`multiplier`]].\nOverrides `suffix`.",
+              "attribute": "unit"
+            },
+            {
+              "kind": "field",
+              "name": "isNull",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "null",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "maybeValue",
+              "type": {
+                "text": "string | null"
+              },
+              "description": "Replacement for `value`, can only be `null` if [[`nullable`]].",
+              "attribute": "maybeValue"
+            },
+            {
+              "kind": "field",
+              "name": "defaultValue",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The default `value` displayed if [[`maybeValue`]] is `null`.",
+              "attribute": "defaultValue"
+            },
+            {
+              "kind": "field",
+              "name": "reservedValues",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "Additional values that cause validation to fail.",
+              "attribute": "reservedValues"
+            },
+            {
+              "kind": "field",
+              "name": "disabledSwitch",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "nullSwitch",
+              "type": {
+                "text": "MdSwitch | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "multiplierMenu",
+              "type": {
+                "text": "MdMenu | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "multiplierButton",
+              "type": {
+                "text": "MdIconButton | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "nulled",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "method",
+              "name": "selectMultiplier",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "se",
+                  "type": {
+                    "text": "CustomEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "enable",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "disable",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderUnitSelector"
+            },
+            {
+              "kind": "method",
+              "name": "renderMulplierList"
+            },
+            {
+              "kind": "method",
+              "name": "renderSwitch"
+            }
+          ],
+          "events": [
+            {
+              "name": "input",
+              "type": {
+                "text": "Event"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "nullable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether [[`maybeValue`]] may be `null`",
+              "fieldName": "nullable"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "disabled"
+            },
+            {
+              "name": "multipliers",
+              "type": {
+                "text": "array"
+              },
+              "default": "[null, '']",
+              "description": "Selectable SI multipliers for a non-empty [[`unit`]].",
+              "fieldName": "multipliers"
+            },
+            {
+              "name": "multiplier",
+              "type": {
+                "text": "string | null"
+              },
+              "fieldName": "multiplier"
+            },
+            {
+              "name": "unit",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "SI Unit, must be non-empty to allow for selecting a [[`multiplier`]].\nOverrides `suffix`.",
+              "fieldName": "unit"
+            },
+            {
+              "name": "maybeValue",
+              "type": {
+                "text": "string | null"
+              },
+              "description": "Replacement for `value`, can only be `null` if [[`nullable`]].",
+              "fieldName": "maybeValue"
+            },
+            {
+              "name": "defaultValue",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The default `value` displayed if [[`maybeValue`]] is `null`.",
+              "fieldName": "defaultValue"
+            },
+            {
+              "name": "reservedValues",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "Additional values that cause validation to fail.",
+              "fieldName": "reservedValues"
+            }
+          ],
+          "mixins": [
+            {
+              "name": "ScopedElementsMixin",
+              "package": "@open-wc/scoped-elements/lit-element.js"
+            }
+          ],
+          "superclass": {
+            "name": "MdOutlinedTextField",
+            "package": "@scopedelement/material-web/textfield/MdOutlinedTextField.js"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "OscdEditorTemplateTextfield",
+          "declaration": {
+            "name": "OscdEditorTemplateTextfield",
+            "module": "components/OscdEditorTemplateTextfield.ts"
+          }
+        }
+      ]
+    }
+  ]
+}

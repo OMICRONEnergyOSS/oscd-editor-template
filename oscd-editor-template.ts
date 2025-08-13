@@ -1,32 +1,48 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { LitElement, TemplateResult, css, html } from 'lit';
-import { property, queryAll, state } from 'lit/decorators.js';
+import { property, query, queryAll, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-import '@material/mwc-icon-button';
-import '@material/mwc-button';
-
-import { Edit, newEditEvent } from '@openscd/open-scd-core';
-
-import '@openenergytools/filterable-lists/dist/action-list.js';
-
-import './foundation/components/scl-template-textfield.js';
-import type { SclTemplateTextfield } from './foundation/components/scl-template-textfield.js';
-
-import {
-  newCreateWizardEvent,
-  newEditWizardEvent,
-  styles,
-} from './foundation.js';
+import { styles } from './foundation.js';
+import { EditV2, Transactor } from '@omicronenergy/oscd-api';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements/lit-element.js';
+import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
+import { MdFilledIconButton } from '@scopedelement/material-web/iconbutton/MdFilledIconButton.js';
+import { MdIcon } from '@scopedelement/material-web/icon/MdIcon.js';
+import { OscdEditorTemplateTextfield } from './components/OscdEditorTemplateTextfield.js';
+import { ActionList } from '@openenergytools/filterable-lists/dist/ActionList.js';
+import OscdEditDialog from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
+import type {
+  CreateWizard,
+  EditWizard,
+} from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
 
 /** An editor [[`plugin`]] for editing the `DataTypeTemplates` section. */
-export default class TemplatesPlugin extends LitElement {
+export default class OscdEditorTemplate extends ScopedElementsMixin(
+  LitElement,
+) {
+  static scopedElements = {
+    'md-outline-button': MdOutlinedButton,
+    'md-filled-icon-button': MdFilledIconButton,
+    'md-icon': MdIcon,
+    'action-list': ActionList,
+    'oscd-editor-template-textfield': OscdEditorTemplateTextfield,
+    'oscd-edit-dialog': OscdEditDialog,
+  };
+  @property({ type: Object })
+  editor!: Transactor<EditV2>;
+
   /** The document being edited as provided to plugins by [[`OpenSCD`]]. */
   @property({ attribute: false })
   doc!: XMLDocument;
 
-  @property({ type: Number })
-  editCount = -1;
+  @property({ attribute: false })
+  docName!: string;
+
+  @property({ attribute: false })
+  docs!: Record<string, XMLDocument>;
+
+  @property({ attribute: false })
+  editCount!: unknown;
 
   @state()
   selectedLNodeType: Element | null | undefined = undefined;
@@ -40,32 +56,33 @@ export default class TemplatesPlugin extends LitElement {
   @state()
   selectedEnumType: Element | null | undefined = undefined;
 
-  @state()
   get dataTypeTemplate(): Element | null {
     return this.doc.querySelector('DataTypeTemplates');
   }
 
   @state() lNodeTypeDiff = false;
 
-  @queryAll('.lnodetype.input') lNodeTypeInputs?: SclTemplateTextfield[];
+  @queryAll('.lnodetype.input') lNodeTypeInputs?: OscdEditorTemplateTextfield[];
 
   @state() doTypeDiff = false;
 
-  @queryAll('.dotype.input') doTypeInputs?: SclTemplateTextfield[];
+  @queryAll('.dotype.input') doTypeInputs?: OscdEditorTemplateTextfield[];
 
   @state() daTypeDiff = false;
 
-  @queryAll('.datype.input') daTypeInputs?: SclTemplateTextfield[];
+  @queryAll('.datype.input') daTypeInputs?: OscdEditorTemplateTextfield[];
 
   @state() enumTypeDiff = false;
 
-  @queryAll('.enumtype.input') enumTypeInputs?: SclTemplateTextfield[];
+  @queryAll('.enumtype.input') enumTypeInputs?: OscdEditorTemplateTextfield[];
+
+  @query('oscd-edit-dialog') editDialog?: OscdEditDialog;
 
   private onLNodeTypeInputChange(): void {
     const lNodeType = this.selectedLNodeType;
 
     const someInvalidAttrs = Array.from(this.lNodeTypeInputs ?? []).some(
-      input => !input.checkValidity()
+      input => !input.checkValidity(),
     );
 
     if (someInvalidAttrs) {
@@ -74,26 +91,30 @@ export default class TemplatesPlugin extends LitElement {
     }
 
     const lNodeTypeAttrs: Record<string, string | null> = {};
-    for (const input of this.lNodeTypeInputs ?? [])
+    for (const input of this.lNodeTypeInputs ?? []) {
       lNodeTypeAttrs[input.label] = input.maybeValue;
+    }
 
     const someAttrDiff = Array.from(this.lNodeTypeInputs ?? []).some(
-      input => lNodeType?.getAttribute(input.label) !== input.maybeValue
+      input => lNodeType?.getAttribute(input.label) !== input.maybeValue,
     );
     this.lNodeTypeDiff = someAttrDiff;
   }
 
   private onSaveLNodeType(): void {
     const lNodeType = this.selectedLNodeType;
-    if (!lNodeType) return;
+    if (!lNodeType) {
+      return;
+    }
 
     const attributes: Record<string, string | null> = {};
     for (const input of this.lNodeTypeInputs ?? []) {
-      if (lNodeType?.getAttribute(input.label) !== input.maybeValue)
+      if (lNodeType?.getAttribute(input.label) !== input.maybeValue) {
         attributes[input.label] = input.maybeValue;
+      }
     }
 
-    const actions: Edit[] = [];
+    const actions: EditV2[] = [];
     actions.push({ element: lNodeType, attributes });
 
     if (attributes.id) {
@@ -104,12 +125,11 @@ export default class TemplatesPlugin extends LitElement {
           actions.push({
             element: anyLn,
             attributes: { lnType: attributes.id },
-          })
+          }),
         );
     }
 
-    this.dispatchEvent(newEditEvent(actions));
-
+    this.editor.commit(actions);
     this.onLNodeTypeInputChange();
   }
 
@@ -117,7 +137,7 @@ export default class TemplatesPlugin extends LitElement {
     const doType = this.selectedDOType;
 
     const someInvalidAttrs = Array.from(this.doTypeInputs ?? []).some(
-      input => !input.checkValidity()
+      input => !input.checkValidity(),
     );
 
     if (someInvalidAttrs) {
@@ -126,40 +146,42 @@ export default class TemplatesPlugin extends LitElement {
     }
 
     const someAttrDiff = Array.from(this.doTypeInputs ?? []).some(
-      input => doType?.getAttribute(input.label) !== input.maybeValue
+      input => doType?.getAttribute(input.label) !== input.maybeValue,
     );
     this.doTypeDiff = someAttrDiff;
   }
 
   private onSaveDOType(): void {
     const element = this.selectedDOType;
-    if (!element) return;
+    if (!element) {
+      return;
+    }
 
     const attributes: Record<string, string | null> = {};
     for (const input of this.doTypeInputs ?? []) {
-      if (element.getAttribute(input.label) !== input.maybeValue)
+      if (element.getAttribute(input.label) !== input.maybeValue) {
         attributes[input.label] = input.maybeValue;
+      }
     }
 
-    const actions: Edit[] = [];
+    const actions: EditV2[] = [];
     actions.push({ element, attributes });
 
     if (attributes.id) {
       const oldId = element.getAttribute('id');
       Array.from(
         element.ownerDocument.querySelectorAll(
-          `LNodeType > DO[type="${oldId}"], DOType > SDO[name="${oldId}"]`
-        ) ?? []
+          `LNodeType > DO[type="${oldId}"], DOType > SDO[name="${oldId}"]`,
+        ) ?? [],
       ).forEach(doOrSdo =>
         actions.push({
           element: doOrSdo,
           attributes: { type: attributes.id },
-        })
+        }),
       );
     }
 
-    this.dispatchEvent(newEditEvent(actions));
-
+    this.editor.commit(actions);
     this.onDOTypeInputChange();
   }
 
@@ -167,7 +189,7 @@ export default class TemplatesPlugin extends LitElement {
     const daType = this.selectedDAType;
 
     const someInvalidAttrs = Array.from(this.daTypeInputs ?? []).some(
-      input => !input.checkValidity()
+      input => !input.checkValidity(),
     );
 
     if (someInvalidAttrs) {
@@ -176,40 +198,42 @@ export default class TemplatesPlugin extends LitElement {
     }
 
     const someAttrDiff = Array.from(this.daTypeInputs ?? []).some(
-      input => daType?.getAttribute(input.label) !== input.maybeValue
+      input => daType?.getAttribute(input.label) !== input.maybeValue,
     );
     this.daTypeDiff = someAttrDiff;
   }
 
   private onSaveDAType(): void {
     const element = this.selectedDAType;
-    if (!element) return;
+    if (!element) {
+      return;
+    }
 
     const attributes: Record<string, string | null> = {};
     for (const input of this.daTypeInputs ?? []) {
-      if (element.getAttribute(input.label) !== input.maybeValue)
+      if (element.getAttribute(input.label) !== input.maybeValue) {
         attributes[input.label] = input.maybeValue;
+      }
     }
 
-    const actions: Edit[] = [];
+    const actions: EditV2[] = [];
     actions.push({ element, attributes });
 
     if (attributes.id) {
       const oldId = element.getAttribute('id');
       Array.from(
         element.ownerDocument.querySelectorAll(
-          `DOType > DA[type="${oldId}"], DAType > BDA[name="${oldId}"]`
-        ) ?? []
+          `DOType > DA[type="${oldId}"], DAType > BDA[name="${oldId}"]`,
+        ) ?? [],
       ).forEach(dAOrBda =>
         actions.push({
           element: dAOrBda,
           attributes: { type: attributes.id },
-        })
+        }),
       );
     }
 
-    this.dispatchEvent(newEditEvent(actions));
-
+    this.editor.commit(actions);
     this.onDATypeInputChange();
   }
 
@@ -217,7 +241,7 @@ export default class TemplatesPlugin extends LitElement {
     const enumType = this.selectedEnumType;
 
     const someInvalidAttrs = Array.from(this.enumTypeInputs ?? []).some(
-      input => !input.checkValidity()
+      input => !input.checkValidity(),
     );
 
     if (someInvalidAttrs) {
@@ -226,45 +250,63 @@ export default class TemplatesPlugin extends LitElement {
     }
 
     const someAttrDiff = Array.from(this.enumTypeInputs ?? []).some(
-      input => enumType?.getAttribute(input.label) !== input.maybeValue
+      input => enumType?.getAttribute(input.label) !== input.maybeValue,
     );
     this.enumTypeDiff = someAttrDiff;
   }
 
   private onSaveEnumType(): void {
     const element = this.selectedEnumType;
-    if (!element) return;
+    if (!element) {
+      return;
+    }
 
     const attributes: Record<string, string | null> = {};
     for (const input of this.enumTypeInputs ?? []) {
-      if (element.getAttribute(input.label) !== input.maybeValue)
+      if (element.getAttribute(input.label) !== input.maybeValue) {
         attributes[input.label] = input.maybeValue;
+      }
     }
 
-    const actions: Edit[] = [];
+    const actions: EditV2[] = [];
     actions.push({ element, attributes });
 
     if (attributes.id) {
       const oldId = element.getAttribute('id');
       Array.from(
         element.ownerDocument.querySelectorAll(
-          `DOType > DA[type="${oldId}"], DAType > BDA[name="${oldId}"]`
-        ) ?? []
+          `DOType > DA[type="${oldId}"], DAType > BDA[name="${oldId}"]`,
+        ) ?? [],
       ).forEach(dAOrBda =>
         actions.push({
           element: dAOrBda,
           attributes: { type: attributes.id },
-        })
+        }),
       );
     }
 
-    this.dispatchEvent(newEditEvent(actions));
-
+    this.editor.commit(actions);
     this.onEnumTypeInputChange();
   }
 
-  private dispatchCreateEvent(parent: Element, child: string): void {
-    this.dispatchEvent(newCreateWizardEvent(parent, child));
+  async handleCreateElement(createWizard: CreateWizard) {
+    const edits = await this.editDialog?.create(createWizard);
+    if (edits) {
+      this.editor.commit(edits);
+      this.requestUpdate();
+    }
+  }
+
+  async handleEditElement(editWizard: EditWizard) {
+    const edits = await this.editDialog?.edit(editWizard);
+    if (edits) {
+      this.editor.commit(edits);
+      this.requestUpdate();
+    }
+  }
+
+  async handleCloseWizardEvent() {
+    this.editDialog?.close();
   }
 
   private selectReferencedChild(element: Element): void {
@@ -283,8 +325,12 @@ export default class TemplatesPlugin extends LitElement {
           .closest('DataTypeTemplates')
           ?.querySelector(`EnumType[id="${element.getAttribute('type')}"]`);
 
-        if (enumType) this.selectedEnumType = enumType;
-        if (element.tagName === 'DA') this.selectedDAType = undefined;
+        if (enumType) {
+          this.selectedEnumType = enumType;
+        }
+        if (element.tagName === 'DA') {
+          this.selectedDAType = undefined;
+        }
       } else if (element.getAttribute('bType') === 'Struct') {
         const daType = element
           .closest('DataTypeTemplates')
@@ -299,12 +345,12 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderEnumTypeChildrenList(): TemplateResult {
     const items = Array.from(
-      this.selectedEnumType?.querySelectorAll(':scope > EnumVal') ?? []
+      this.selectedEnumType?.querySelectorAll(':scope > EnumVal') ?? [],
     ).map(enumVal => ({
       headline: `${enumVal.textContent}`,
       supportingText: `${enumVal.getAttribute('ord')}`,
       primaryAction: () => {
-        this.dispatchEvent(newEditWizardEvent(enumVal));
+        this.handleEditElement({ element: enumVal });
       },
     }));
 
@@ -319,12 +365,12 @@ export default class TemplatesPlugin extends LitElement {
         EnumType
         <nav>
           <abbr title="add">
-            <mwc-icon-button
-              icon="close"
+            <md-filled-icon-button
               @click="${() => {
                 this.selectedEnumType = undefined;
               }}"
-            ></mwc-icon-button>
+              ><md-icon>close</md-icon></md-filled-icon-button
+            >
           </abbr>
         </nav>
       </h1>
@@ -335,7 +381,7 @@ export default class TemplatesPlugin extends LitElement {
           hide: this.selectedEnumType === null,
         })}
       >
-        <scl-template-textfield
+        <oscd-editor-template-textfield
           class="enumtype input"
           label="id"
           .maybeValue=${this.selectedEnumType?.getAttribute('id') ?? ''}
@@ -344,30 +390,33 @@ export default class TemplatesPlugin extends LitElement {
           minlength="1"
           dialogInitialFocus
           @input="${this.onEnumTypeInputChange}"
-        ></scl-template-textfield>
-        <scl-template-textfield
+        ></oscd-editor-template-textfield>
+        <oscd-editor-template-textfield
           class="enumtype input"
           label="desc"
           .maybeValue=${this.selectedEnumType?.getAttribute('desc') ?? null}
           nullable
           @input="${this.onEnumTypeInputChange}"
-        ></scl-template-textfield>
+        ></oscd-editor-template-textfield>
         <div class="save">
-          <mwc-button
+          <md-button
             icon="save"
             label="Save"
             ?disabled=${!this.enumTypeDiff}
             @click="${this.onSaveEnumType}"
-          ></mwc-button>
+          ></md-button>
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <mwc-button
+          <md-button
             icon="playlist_add"
             label="Add EnumVal"
-            @click="${() =>
-              this.dispatchCreateEvent(this.selectedEnumType!, 'EnumVal')}"
-          ></mwc-button>
+            @click=${() =>
+              this.handleCreateElement({
+                parent: this.selectedEnumType!,
+                tagName: 'EnumVal',
+              })}
+          ></md-button>
         </div>
         <action-list
           .items=${items}
@@ -380,7 +429,7 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderEnumTypeList(): TemplateResult {
     const items = Array.from(
-      this.doc.querySelectorAll(':root > DataTypeTemplates > EnumType')
+      this.doc.querySelectorAll(':root > DataTypeTemplates > EnumType'),
     ).map(enumType => ({
       headline: `${enumType.getAttribute('id')}`,
       primaryAction: () => {
@@ -400,13 +449,17 @@ export default class TemplatesPlugin extends LitElement {
           EnumType
           <nav>
             <abbr title="add">
-              <mwc-icon-button
-                icon="playlist_add"
-                @click="${() => {
-                  if (this.dataTypeTemplate)
-                    this.dispatchCreateEvent(this.dataTypeTemplate, 'EnumType');
-                }}"
-              ></mwc-icon-button>
+              <md-filled-icon-button
+                @click=${() => {
+                  if (this.dataTypeTemplate) {
+                    this.handleCreateElement({
+                      parent: this.dataTypeTemplate,
+                      tagName: 'EnumType',
+                    });
+                  }
+                }}
+                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+              >
             </abbr>
           </nav>
         </h1>
@@ -421,7 +474,7 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderDATypeChildrenList(): TemplateResult {
     const items = Array.from(
-      this.selectedDAType?.querySelectorAll(':scope > BDA') ?? []
+      this.selectedDAType?.querySelectorAll(':scope > BDA') ?? [],
     ).map(dAorBda => ({
       headline: `${dAorBda.getAttribute('name')}`,
       actions: [
@@ -445,12 +498,12 @@ export default class TemplatesPlugin extends LitElement {
         DAType
         <nav>
           <abbr title="add">
-            <mwc-icon-button
-              icon="close"
+            <md-filled-icon-button
               @click="${() => {
                 this.selectedDAType = undefined;
               }}"
-            ></mwc-icon-button>
+              ><md-icon>close</md-icon></md-filled-icon-button
+            >
           </abbr>
         </nav>
       </h1>
@@ -461,7 +514,7 @@ export default class TemplatesPlugin extends LitElement {
           hide: this.selectedDAType === null,
         })}
       >
-        <scl-template-textfield
+        <oscd-editor-template-textfield
           class="datype input"
           label="id"
           .maybeValue=${this.selectedDAType?.getAttribute('id') ?? ''}
@@ -470,30 +523,33 @@ export default class TemplatesPlugin extends LitElement {
           minlength="1"
           dialogInitialFocus
           @input="${this.onDATypeInputChange}"
-        ></scl-template-textfield>
-        <scl-template-textfield
+        ></oscd-editor-template-textfield>
+        <oscd-editor-template-textfield
           class="datype input"
           label="desc"
           .maybeValue=${this.selectedDAType?.getAttribute('desc') ?? null}
           nullable
           @input="${this.onDATypeInputChange}"
-        ></scl-template-textfield>
+        ></oscd-editor-template-textfield>
         <div class="save">
-          <mwc-button
+          <md-button
             icon="save"
             label="Save"
             ?disabled=${!this.daTypeDiff}
             @click="${this.onSaveDAType}"
-          ></mwc-button>
+          ></md-button>
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <mwc-button
+          <md-button
             icon="playlist_add"
             label="Add Data Attribute"
-            @click="${() =>
-              this.dispatchCreateEvent(this.selectedDAType!, 'BDA')}"
-          ></mwc-button>
+            @click=${() =>
+              this.handleCreateElement({
+                parent: this.selectedDAType!,
+                tagName: 'BDA',
+              })}
+          ></md-button>
         </div>
         <action-list
           .items=${items}
@@ -506,7 +562,7 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderDATypeList(): TemplateResult {
     const items = Array.from(
-      this.doc.querySelectorAll(':root > DataTypeTemplates > DAType')
+      this.doc.querySelectorAll(':root > DataTypeTemplates > DAType'),
     ).map(daType => ({
       headline: `${daType.getAttribute('id')}`,
       primaryAction: () => {
@@ -526,13 +582,17 @@ export default class TemplatesPlugin extends LitElement {
           DAType
           <nav>
             <abbr title="add">
-              <mwc-icon-button
-                icon="playlist_add"
+              <md-filled-icon-button
                 @click="${() => {
-                  if (this.dataTypeTemplate)
-                    this.dispatchCreateEvent(this.dataTypeTemplate, 'DAType');
+                  if (this.dataTypeTemplate) {
+                    this.handleCreateElement({
+                      parent: this.dataTypeTemplate,
+                      tagName: 'DAType',
+                    });
+                  }
                 }}"
-              ></mwc-icon-button>
+                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+              >
             </abbr>
           </nav>
         </h1>
@@ -547,11 +607,11 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderDOTypeChildrenList(): TemplateResult {
     const items = Array.from(
-      this.selectedDOType?.querySelectorAll(':scope > SDO, :scope > DA') ?? []
+      this.selectedDOType?.querySelectorAll(':scope > SDO, :scope > DA') ?? [],
     ).map(sDOorDa => ({
       headline: `${sDOorDa.getAttribute('name')}`,
       primaryAction: () => {
-        this.dispatchEvent(newEditWizardEvent(sDOorDa));
+        this.handleEditElement({ element: sDOorDa });
       },
       actions: [
         {
@@ -574,12 +634,12 @@ export default class TemplatesPlugin extends LitElement {
         DOType
         <nav>
           <abbr title="add">
-            <mwc-icon-button
-              icon="close"
+            <md-filled-icon-button
               @click="${() => {
                 this.selectedDOType = undefined;
               }}"
-            ></mwc-icon-button>
+              ><md-icon>close</md-icon></md-filled-icon-button
+            >
           </abbr>
         </nav>
       </h1>
@@ -590,7 +650,7 @@ export default class TemplatesPlugin extends LitElement {
           hide: this.selectedDOType === null,
         })}
       >
-        <scl-template-textfield
+        <oscd-editor-template-textfield
           class="dotype input"
           label="id"
           .maybeValue=${this.selectedDOType?.getAttribute('id') ?? ''}
@@ -599,43 +659,49 @@ export default class TemplatesPlugin extends LitElement {
           minlength="1"
           dialogInitialFocus
           @input="${this.onDOTypeInputChange}"
-        ></scl-template-textfield>
-        <scl-template-textfield
+        ></oscd-editor-template-textfield>
+        <oscd-editor-template-textfield
           class="dotype input"
           label="desc"
           .maybeValue=${this.selectedDOType?.getAttribute('desc') ?? null}
           nullable
           @input="${this.onDOTypeInputChange}"
-        ></scl-template-textfield>
-        <scl-template-textfield
+        ></oscd-editor-template-textfield>
+        <oscd-editor-template-textfield
           class="dotype input"
           label="cdc"
           .maybeValue=${this.selectedDOType?.getAttribute('cdc') ?? ''}
           required
           @input="${this.onDOTypeInputChange}"
-        ></scl-template-textfield>
+        ></oscd-editor-template-textfield>
         <div class="save">
-          <mwc-button
+          <md-button
             icon="save"
             label="Save"
             ?disabled=${!this.doTypeDiff}
             @click="${this.onSaveDOType}"
-          ></mwc-button>
+          ></md-button>
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <mwc-button
+          <md-button
             icon="playlist_add"
             label="Add Data Object"
             @click="${() =>
-              this.dispatchCreateEvent(this.selectedDOType!, 'SDO')}"
-          ></mwc-button>
-          <mwc-button
+              this.handleCreateElement({
+                parent: this.selectedDOType!,
+                tagName: 'SDO',
+              })}"
+          ></md-button>
+          <md-button
             icon="playlist_add"
             label="Add Data Attribute"
             @click="${() =>
-              this.dispatchCreateEvent(this.selectedDOType!, 'DA')}"
-          ></mwc-button>
+              this.handleCreateElement({
+                parent: this.selectedDOType!,
+                tagName: 'DA',
+              })}"
+          ></md-button>
         </div>
         <action-list
           .items=${items}
@@ -648,7 +714,7 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderDOTypeList(): TemplateResult {
     const items = Array.from(
-      this.doc.querySelectorAll(':root > DataTypeTemplates > DOType')
+      this.doc.querySelectorAll(':root > DataTypeTemplates > DOType'),
     ).map(doType => ({
       headline: `${doType.getAttribute('id')}`,
       supportingText: `${doType.getAttribute('cdc')}`,
@@ -669,13 +735,17 @@ export default class TemplatesPlugin extends LitElement {
           DOType
           <nav>
             <abbr title="add">
-              <mwc-icon-button
-                icon="playlist_add"
+              <md-filled-icon-button
                 @click="${() => {
-                  if (this.dataTypeTemplate)
-                    this.dispatchCreateEvent(this.dataTypeTemplate, 'DOType');
+                  if (this.dataTypeTemplate) {
+                    this.handleCreateElement({
+                      parent: this.dataTypeTemplate,
+                      tagName: 'DOType',
+                    });
+                  }
                 }}"
-              ></mwc-icon-button>
+                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+              >
             </abbr>
           </nav>
         </h1>
@@ -690,11 +760,11 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderLNodeTypeChildrenList(): TemplateResult {
     const items = Array.from(
-      this.selectedLNodeType?.querySelectorAll(':scope > DO') ?? []
+      this.selectedLNodeType?.querySelectorAll(':scope > DO') ?? [],
     ).map(dO => ({
       headline: `${dO.getAttribute('name')}`,
       primaryAction: () => {
-        this.dispatchEvent(newEditWizardEvent(dO));
+        this.handleEditElement({ element: dO });
       },
       actions: [
         {
@@ -717,17 +787,17 @@ export default class TemplatesPlugin extends LitElement {
         LNodeType
         <nav>
           <abbr title="add">
-            <mwc-icon-button
-              icon="close"
+            <md-filled-icon-button
               @click="${() => {
                 this.selectedLNodeType = undefined;
               }}"
-            ></mwc-icon-button>
+              ><md-icon>close</md-icon></md-filled-icon-button
+            >
           </abbr>
         </nav>
       </h1>
       <div>
-        <scl-template-textfield
+        <oscd-editor-template-textfield
           class="lnodetype input id"
           label="id"
           .maybeValue=${this.selectedLNodeType?.getAttribute('id') ?? ''}
@@ -736,37 +806,40 @@ export default class TemplatesPlugin extends LitElement {
           minlength="1"
           dialogInitialFocus
           @input="${this.onLNodeTypeInputChange}"
-        ></scl-template-textfield>
-        <scl-template-textfield
+        ></oscd-editor-template-textfield>
+        <oscd-editor-template-textfield
           class="lnodetype input desc"
           label="desc"
           .maybeValue=${this.selectedLNodeType?.getAttribute('desc') ?? null}
           nullable
           @input="${this.onLNodeTypeInputChange}"
-        ></scl-template-textfield>
-        <scl-template-textfield
+        ></oscd-editor-template-textfield>
+        <oscd-editor-template-textfield
           class="lnodetype input lnclass"
           label="lnClass"
           .maybeValue=${this.selectedLNodeType?.getAttribute('lnClass') ?? ''}
           required
           @input="${this.onLNodeTypeInputChange}"
-        ></scl-template-textfield>
+        ></oscd-editor-template-textfield>
         <div class="save">
-          <mwc-button
+          <md-button
             icon="save"
             label="Save"
             ?disabled=${!this.lNodeTypeDiff}
             @click="${this.onSaveLNodeType}"
-          ></mwc-button>
+          ></md-button>
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <mwc-button
+          <md-button
             icon="playlist_add"
             label="Add Data Object"
-            @click="${() =>
-              this.dispatchCreateEvent(this.selectedLNodeType!, 'DO')}"
-          ></mwc-button>
+            @click=${() =>
+              this.handleCreateElement({
+                parent: this.selectedLNodeType!,
+                tagName: 'DO',
+              })}
+          ></md-button>
         </div>
         <action-list
           .items=${items}
@@ -779,7 +852,7 @@ export default class TemplatesPlugin extends LitElement {
 
   private renderLNodeTypeList(): TemplateResult {
     const items = Array.from(
-      this.doc.querySelectorAll(':root > DataTypeTemplates > LNodeType')
+      this.doc.querySelectorAll(':root > DataTypeTemplates > LNodeType'),
     ).map(lNodeType => ({
       headline: `${lNodeType.getAttribute('id')}`,
       supportingText: `${lNodeType.getAttribute('lnClass')}`,
@@ -800,16 +873,17 @@ export default class TemplatesPlugin extends LitElement {
           LNodeType
           <nav>
             <abbr title="add">
-              <mwc-icon-button
-                icon="playlist_add"
+              <md-filled-icon-button
                 @click="${() => {
-                  if (this.dataTypeTemplate)
-                    this.dispatchCreateEvent(
-                      this.dataTypeTemplate,
-                      'LNodeType'
-                    );
+                  if (this.dataTypeTemplate) {
+                    this.handleCreateElement({
+                      parent: this.dataTypeTemplate,
+                      tagName: 'LNodeType',
+                    });
+                  }
                 }}"
-              ></mwc-icon-button>
+                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+              >
             </abbr>
           </nav>
         </h1>
@@ -823,10 +897,11 @@ export default class TemplatesPlugin extends LitElement {
   }
 
   render(): TemplateResult {
-    if (!this.doc?.querySelector(':root > DataTypeTemplates'))
+    if (!this.doc?.querySelector(':root > DataTypeTemplates')) {
       return html`<h1>
         <span style="color: var(--base1)">DataTypeTemplates Missing</span>
       </h1>`;
+    }
 
     return html`
       <div id="containerTemplates">
@@ -835,13 +910,14 @@ export default class TemplatesPlugin extends LitElement {
         ${this.renderDATypeChildrenList()}${this.renderDATypeList()}
         ${this.renderEnumTypeChildrenList()}${this.renderEnumTypeList()}
       </div>
+      <oscd-edit-dialog></oscd-edit-dialog>
     `;
   }
 
   static styles = css`
     ${styles}
 
-    scl-template-textfield {
+    oscd-editor-template-textfield {
       margin-top: 16px;
     }
 
@@ -851,6 +927,10 @@ export default class TemplatesPlugin extends LitElement {
 
     .hide {
       display: none;
+    }
+
+    section {
+      padding: 8px;
     }
 
     section.edit > div > * {
@@ -880,7 +960,7 @@ export default class TemplatesPlugin extends LitElement {
       justify-content: flex-end;
     }
 
-    div.save > mwc-button {
+    div.save > md-button {
       margin: 10px;
     }
 

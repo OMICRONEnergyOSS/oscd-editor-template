@@ -1,25 +1,36 @@
 import { html } from 'lit';
-import { customElement, property, query, state } from 'lit/decorators.js';
+import { property, query, state } from 'lit/decorators.js';
 
-import '@material/mwc-icon-button';
-import '@material/mwc-list/mwc-list-item';
-import '@material/mwc-menu';
-import '@material/mwc-switch';
-import type { IconButton } from '@material/mwc-icon-button';
-import type { Menu } from '@material/mwc-menu';
-import { SingleSelectedEvent } from '@material/mwc-list/mwc-list-foundation';
-import type { Switch } from '@material/mwc-switch';
-import { TextField } from '@material/mwc-textfield';
+import { MdSwitch } from '@scopedelement/material-web/switch/MdSwtich.js';
+import { MdMenu } from '@scopedelement/material-web/menu/MdMenu.js';
+import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
+import { MdIconButton } from '@scopedelement/material-web/iconbutton/MdIconButton.js';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements/lit-element.js';
+import { MdOutlinedField } from '@scopedelement/material-web/field/MdOutlinedField.js';
+import { MdOutlinedTextField } from '@scopedelement/material-web/textfield/MdOutlinedTextField.js';
+import { MdListItem } from '@scopedelement/material-web/list/MdListItem.js';
 
-/** A potentially `nullable` `TextField` that allows for selection of an SI
- * `multiplier` if an SI `unit` is given.
- *
- * NB: Use `maybeValue: string | null` instead of `value` if `nullable`! */
-@customElement('scl-template-textfield')
-export class SclTemplateTextfield extends TextField {
+export class OscdEditorTemplateTextfield extends ScopedElementsMixin(
+  MdOutlinedTextField,
+) {
+  static scopedElements = {
+    'md-outlined-field': MdOutlinedField,
+    'md-button': MdOutlinedButton,
+    'md-icon-button': MdIconButton,
+    'md-menu': MdMenu,
+    'md-switch': MdSwitch,
+    'md-list-item': MdListItem,
+  };
+  /** A potentially `nullable` `TextField` that allows for selection of an SI
+   * `multiplier` if an SI `unit` is given.
+   *
+   * NB: Use `maybeValue: string | null` instead of `value` if `nullable`! */
   /** Whether [[`maybeValue`]] may be `null` */
   @property({ type: Boolean })
   nullable = false;
+
+  @property({ type: Boolean, attribute: true })
+  disabled = false;
 
   /** Selectable SI multipliers for a non-empty [[`unit`]]. */
   @property({ type: Array })
@@ -29,7 +40,9 @@ export class SclTemplateTextfield extends TextField {
 
   @property({ type: String })
   get multiplier(): string | null {
-    if (this.unit === '') return null;
+    if (this.unit === '') {
+      return null;
+    }
     return (
       this.multipliers[this.multiplierIndex] ?? this.multipliers[0] ?? null
     );
@@ -37,8 +50,10 @@ export class SclTemplateTextfield extends TextField {
 
   set multiplier(value: string | null) {
     const index = this.multipliers.indexOf(value);
-    if (index >= 0) this.multiplierIndex = index;
-    this.suffix = (this.multiplier ?? '') + this.unit;
+    if (index >= 0) {
+      this.multiplierIndex = index;
+    }
+    this.suffixText = (this.multiplier ?? '') + this.unit;
   }
 
   /** SI Unit, must be non-empty to allow for selecting a [[`multiplier`]].
@@ -54,10 +69,15 @@ export class SclTemplateTextfield extends TextField {
   }
 
   private set null(value: boolean) {
-    if (!this.nullable || value === this.isNull) return;
+    if (!this.nullable || value === this.isNull) {
+      return;
+    }
     this.isNull = value;
-    if (this.null) this.disable();
-    else this.enable();
+    if (this.null) {
+      this.disable();
+    } else {
+      this.enable();
+    }
   }
 
   /** Replacement for `value`, can only be `null` if [[`nullable`]]. */
@@ -67,8 +87,9 @@ export class SclTemplateTextfield extends TextField {
   }
 
   set maybeValue(value: string | null) {
-    if (value === null) this.null = true;
-    else {
+    if (value === null) {
+      this.null = true;
+    } else {
       this.null = false;
       this.value = value;
     }
@@ -85,38 +106,45 @@ export class SclTemplateTextfield extends TextField {
   // FIXME: workaround to allow disable of the whole component - need basic refactor
   private disabledSwitch = false;
 
-  @query('mwc-switch') nullSwitch?: Switch;
+  @query('md-switch') nullSwitch?: MdSwitch;
 
-  @query('mwc-menu') multiplierMenu?: Menu;
+  @query('md-menu') multiplierMenu?: MdMenu;
 
-  @query('mwc-icon-button') multiplierButton?: IconButton;
+  @query('md-icon-button') multiplierButton?: MdIconButton;
 
   private nulled: string | null = null;
 
-  private selectMultiplier(se: SingleSelectedEvent): void {
+  private selectMultiplier(se: CustomEvent): void {
     this.multiplier = this.multipliers[se.detail.index];
   }
 
   private enable(): void {
-    if (this.nulled === null) return;
+    if (this.nulled === null) {
+      return;
+    }
     this.value = this.nulled;
     this.nulled = null;
-    this.helperPersistent = false;
+    // this.helperPersistent = false;
     this.disabled = false;
   }
 
   private disable(): void {
-    if (this.nulled !== null) return;
+    if (this.nulled !== null) {
+      return;
+    }
     this.nulled = this.value;
     this.value = this.defaultValue;
-    this.helperPersistent = true;
+    // this.helperPersistent = true;
     this.disabled = true;
   }
 
-  async firstUpdated(): Promise<void> {
-    await super.firstUpdated();
-    if (this.multiplierMenu)
-      this.multiplierMenu.anchor = this.multiplierButton ?? null;
+  async firstUpdated(
+    changedProperties: Map<string | number | symbol, unknown>,
+  ): Promise<void> {
+    super.firstUpdated(changedProperties);
+    if (this.multiplierMenu) {
+      this.multiplierMenu.anchor = this.multiplierButton?.id ?? '';
+    }
   }
 
   checkValidity(): boolean {
@@ -131,29 +159,29 @@ export class SclTemplateTextfield extends TextField {
     return super.checkValidity();
   }
 
-  constructor() {
-    super();
-
-    // eslint-disable-next-line wc/no-constructor-attributes
+  connectedCallback() {
+    super.connectedCallback();
     this.disabledSwitch = this.hasAttribute('disabled');
   }
 
   renderUnitSelector() {
-    if (this.multipliers.length && this.unit)
+    if (this.multipliers.length && this.unit) {
       return html`<div style="position:relative;">
-        <mwc-icon-button
+        <md-icon-button
           style="margin:5px;"
-          icon="more"
           ?disabled=${this.null || this.disabledSwitch}
           @click=${() => this.multiplierMenu?.show()}
-        ></mwc-icon-button>
-        <mwc-menu
+        >
+          <md-icon>more</md-icon>
+        </md-icon-button>
+        <md-menu
           @selected=${this.selectMultiplier}
           fixed
-          .anchor=${this.multiplierButton ?? null}
-          >${this.renderMulplierList()}</mwc-menu
+          .anchor=${this.multiplierButton?.id ?? ''}
+          >${this.renderMulplierList()}</md-menu
         >
       </div>`;
+    }
 
     return html``;
   }
@@ -161,25 +189,25 @@ export class SclTemplateTextfield extends TextField {
   renderMulplierList() {
     return html`${this.multipliers.map(
       multiplier =>
-        html`<mwc-list-item ?selected=${multiplier === this.multiplier}
+        html`<md-list-item ?selected=${multiplier === this.multiplier}
           >${multiplier === null
             ? 'textfield.noMultiplier'
-            : multiplier}</mwc-list-item
-        >`
+            : multiplier}</md-list-item
+        >`,
     )}`;
   }
 
   renderSwitch() {
     if (this.nullable) {
-      return html`<mwc-switch
+      return html`<md-switch
         style="margin-left: 12px;"
-        ?selected=${!this.null}
+        ?selected=${this.null}
         ?disabled=${this.disabledSwitch}
-        @click=${() => {
-          this.null = !this.nullSwitch!.selected;
+        @click=${(event: Event) => {
+          this.null = (event.target as MdSwitch)?.selected ?? false;
           this.dispatchEvent(new Event('input'));
         }}
-      ></mwc-switch>`;
+      ></md-switch>`;
     }
     return html``;
   }

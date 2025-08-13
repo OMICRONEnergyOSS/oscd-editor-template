@@ -1,17 +1,12 @@
-# \<oscd-publisher>
+[![Tests](https://github.com/OMICRONEnergyOSS/oscd-editor-template/actions/workflows/test.yml/badge.svg)](https://github.com/OMICRONEnergyOSS/oscd-editor-template/actions/workflows/test.yml) ![NPM Version](https://img.shields.io/npm/v/@omicronenergy/oscd-editor-template)
+
+# \<oscd-editor-template>
+
+This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
 
 ## What is this?
 
-This is an editor plugin for [open-scd-core](https://github.com/openscd/open-scd-core#readme), the new core editor engine for OpenSCD. With this plugin you can edit control block and related elements and its data sets. Visit the [demo environment](https://shorturl.at/ENV03) and see for yourself.
-
-## Missing features
-
-- edit `SampledValueControl` elements
-- create `SampledValueControl` elements
-- re-allocate control blocks in data model (new once are allocated the first logical device `LLN0`)
-- re-arrange `FCDA` element in the `DataSet`
-
-## Quick access tp the plugin
+This is an editor plugin for [OpenSCD](https://openscd.org). With this plugin you can view, edit and insert Data Type Templates into an SCL document. Visit the [demo environment](https://omicronenergyoss.github.io/oscd-editor-template/demo/index.html) and see for yourself.
 
 ## Linting and formatting
 
@@ -28,6 +23,8 @@ npm run format
 ```
 
 ## Testing with Web Test Runner
+
+> Currently there have been no unit tests developed for this plugin.
 
 To execute a single test run:
 
@@ -50,9 +47,14 @@ If you customize the configuration a lot, you can consider moving them to indivi
 ## Local Demo with `web-dev-server`
 
 ```bash
-npm start
+npm run start
 ```
 
 To run a local development server that serves the basic demo located in `demo/index.html`
 
 &copy; Jakob Vogelsang
+&copy; 2025 OMICRON electronics GmbH
+
+## License
+
+[Apache-2.0](LICENSE)
