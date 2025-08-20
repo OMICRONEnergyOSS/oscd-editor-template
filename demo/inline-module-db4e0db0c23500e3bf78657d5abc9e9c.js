@@ -10980,6 +10980,14 @@ function convertEdit(edit) {
     return [];
 }
 
+function newEditEventV2(edit, options) {
+    return new CustomEvent('oscd-edit-v2', {
+        composed: true,
+        bubbles: true,
+        detail: { ...options, edit },
+    });
+}
+
 function newOpenEvent(doc, docName) {
     return new CustomEvent('oscd-open', {
         bubbles: true,
@@ -51788,7 +51796,7 @@ class OscdEditorTemplate extends ScopedElementsMixin(i$3) {
                 attributes: { lnType: attributes.id },
             }));
         }
-        this.editor.commit(actions);
+        this.dispatchEvent(newEditEventV2(actions));
         this.onLNodeTypeInputChange();
     }
     onDOTypeInputChange() {
@@ -51821,7 +51829,7 @@ class OscdEditorTemplate extends ScopedElementsMixin(i$3) {
                 attributes: { type: attributes.id },
             }));
         }
-        this.editor.commit(actions);
+        this.dispatchEvent(newEditEventV2(actions));
         this.onDOTypeInputChange();
     }
     onDATypeInputChange() {
@@ -51854,7 +51862,7 @@ class OscdEditorTemplate extends ScopedElementsMixin(i$3) {
                 attributes: { type: attributes.id },
             }));
         }
-        this.editor.commit(actions);
+        this.dispatchEvent(newEditEventV2(actions));
         this.onDATypeInputChange();
     }
     onEnumTypeInputChange() {
@@ -51887,20 +51895,20 @@ class OscdEditorTemplate extends ScopedElementsMixin(i$3) {
                 attributes: { type: attributes.id },
             }));
         }
-        this.editor.commit(actions);
+        this.dispatchEvent(newEditEventV2(actions));
         this.onEnumTypeInputChange();
     }
     async handleCreateElement(createWizard) {
         const edits = await this.editDialog?.create(createWizard);
         if (edits) {
-            this.editor.commit(edits);
+            this.dispatchEvent(newEditEventV2(edits));
             this.requestUpdate();
         }
     }
     async handleEditElement(editWizard) {
         const edits = await this.editDialog?.edit(editWizard);
         if (edits) {
-            this.editor.commit(edits);
+            this.dispatchEvent(newEditEventV2(edits));
             this.requestUpdate();
         }
     }
@@ -52539,9 +52547,6 @@ OscdEditorTemplate.styles = i$6 `
     }
   `;
 __decorate([
-    n$3({ type: Object })
-], OscdEditorTemplate.prototype, "editor", void 0);
-__decorate([
     n$3({ attribute: false })
 ], OscdEditorTemplate.prototype, "doc", void 0);
 __decorate([
@@ -52549,10 +52554,7 @@ __decorate([
 ], OscdEditorTemplate.prototype, "docName", void 0);
 __decorate([
     n$3({ attribute: false })
-], OscdEditorTemplate.prototype, "docs", void 0);
-__decorate([
-    n$3({ attribute: false })
-], OscdEditorTemplate.prototype, "editCount", void 0);
+], OscdEditorTemplate.prototype, "docVersion", void 0);
 __decorate([
     r$1()
 ], OscdEditorTemplate.prototype, "selectedLNodeType", void 0);

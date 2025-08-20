@@ -1,5 +1,4 @@
 import { LitElement, TemplateResult } from 'lit';
-import { EditV2, Transactor } from '@omicronenergy/oscd-api';
 import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
 import { MdFilledIconButton } from '@scopedelement/material-web/iconbutton/MdFilledIconButton.js';
 import { MdIcon } from '@scopedelement/material-web/icon/MdIcon.js';
@@ -18,12 +17,10 @@ export default class OscdEditorTemplate extends OscdEditorTemplate_base {
         'oscd-editor-template-textfield': typeof OscdEditorTemplateTextfield;
         'oscd-edit-dialog': typeof OscdEditDialog;
     };
-    editor: Transactor<EditV2>;
     /** The document being edited as provided to plugins by [[`OpenSCD`]]. */
     doc: XMLDocument;
     docName: string;
-    docs: Record<string, XMLDocument>;
-    editCount: unknown;
+    docVersion: unknown;
     selectedLNodeType: Element | null | undefined;
     selectedDOType: Element | null | undefined;
     selectedDAType: Element | null | undefined;
