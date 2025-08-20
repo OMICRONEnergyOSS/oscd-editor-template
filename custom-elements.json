@@ -44,14 +44,6 @@
             },
             {
               "kind": "field",
-              "name": "editor",
-              "type": {
-                "text": "Transactor<EditV2>"
-              },
-              "attribute": "editor"
-            },
-            {
-              "kind": "field",
               "name": "doc",
               "type": {
                 "text": "XMLDocument"
@@ -67,14 +59,7 @@
             },
             {
               "kind": "field",
-              "name": "docs",
-              "type": {
-                "text": "Record<string, XMLDocument>"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "editCount",
+              "name": "docVersion",
               "type": {
                 "text": "unknown"
               }
@@ -391,15 +376,6 @@
                   "text": "TemplateResult"
                 }
               }
-            }
-          ],
-          "attributes": [
-            {
-              "name": "editor",
-              "type": {
-                "text": "Transactor<EditV2>"
-              },
-              "fieldName": "editor"
             }
           ],
           "mixins": [

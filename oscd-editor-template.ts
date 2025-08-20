@@ -3,7 +3,7 @@ import { property, query, queryAll, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { styles } from './foundation.js';
-import { EditV2, Transactor } from '@omicronenergy/oscd-api';
+import { EditV2 } from '@omicronenergy/oscd-api';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements/lit-element.js';
 import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
 import { MdFilledIconButton } from '@scopedelement/material-web/iconbutton/MdFilledIconButton.js';
@@ -15,6 +15,7 @@ import type {
   CreateWizard,
   EditWizard,
 } from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
+import { newEditEventV2 } from '@omicronenergy/oscd-api/utils.js';
 
 /** An editor [[`plugin`]] for editing the `DataTypeTemplates` section. */
 export default class OscdEditorTemplate extends ScopedElementsMixin(
@@ -28,8 +29,6 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
     'oscd-editor-template-textfield': OscdEditorTemplateTextfield,
     'oscd-edit-dialog': OscdEditDialog,
   };
-  @property({ type: Object })
-  editor!: Transactor<EditV2>;
 
   /** The document being edited as provided to plugins by [[`OpenSCD`]]. */
   @property({ attribute: false })
@@ -39,10 +38,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
   docName!: string;
 
   @property({ attribute: false })
-  docs!: Record<string, XMLDocument>;
-
-  @property({ attribute: false })
-  editCount!: unknown;
+  docVersion!: unknown;
 
   @state()
   selectedLNodeType: Element | null | undefined = undefined;
@@ -129,7 +125,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
         );
     }
 
-    this.editor.commit(actions);
+    this.dispatchEvent(newEditEventV2(actions));
     this.onLNodeTypeInputChange();
   }
 
@@ -181,7 +177,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
       );
     }
 
-    this.editor.commit(actions);
+    this.dispatchEvent(newEditEventV2(actions));
     this.onDOTypeInputChange();
   }
 
@@ -233,7 +229,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
       );
     }
 
-    this.editor.commit(actions);
+    this.dispatchEvent(newEditEventV2(actions));
     this.onDATypeInputChange();
   }
 
@@ -285,14 +281,14 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
       );
     }
 
-    this.editor.commit(actions);
+    this.dispatchEvent(newEditEventV2(actions));
     this.onEnumTypeInputChange();
   }
 
   async handleCreateElement(createWizard: CreateWizard) {
     const edits = await this.editDialog?.create(createWizard);
     if (edits) {
-      this.editor.commit(edits);
+      this.dispatchEvent(newEditEventV2(edits));
       this.requestUpdate();
     }
   }
@@ -300,7 +296,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
   async handleEditElement(editWizard: EditWizard) {
     const edits = await this.editDialog?.edit(editWizard);
     if (edits) {
-      this.editor.commit(edits);
+      this.dispatchEvent(newEditEventV2(edits));
       this.requestUpdate();
     }
   }

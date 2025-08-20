@@ -21,9 +21,6 @@ describe('oscd-editor-template', () => {
 
   beforeEach(async () => {
     plugin = await fixture(html`<oscd-editor-template></oscd-editor-template>`);
-    plugin.docs = {
-      'test.scd': sclDoc,
-    };
     plugin.doc = sclDoc;
     plugin.docName = 'test.scd';
   });
