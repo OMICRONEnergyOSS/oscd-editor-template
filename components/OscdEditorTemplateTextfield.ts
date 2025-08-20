@@ -3,7 +3,6 @@ import { property, query, state } from 'lit/decorators.js';
 
 import { MdSwitch } from '@scopedelement/material-web/switch/MdSwtich.js';
 import { MdMenu } from '@scopedelement/material-web/menu/MdMenu.js';
-import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
 import { MdIconButton } from '@scopedelement/material-web/iconbutton/MdIconButton.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements/lit-element.js';
 import { MdOutlinedField } from '@scopedelement/material-web/field/MdOutlinedField.js';
@@ -15,7 +14,6 @@ export class OscdEditorTemplateTextfield extends ScopedElementsMixin(
 ) {
   static scopedElements = {
     'md-outlined-field': MdOutlinedField,
-    'md-button': MdOutlinedButton,
     'md-icon-button': MdIconButton,
     'md-menu': MdMenu,
     'md-switch': MdSwitch,

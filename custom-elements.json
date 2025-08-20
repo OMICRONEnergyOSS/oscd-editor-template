@@ -40,15 +40,7 @@
                 "text": "object"
               },
               "static": true,
-              "default": "{ 'md-outline-button': MdOutlinedButton, 'md-filled-icon-button': MdFilledIconButton, 'md-icon': MdIcon, 'action-list': ActionList, 'oscd-editor-template-textfield': OscdEditorTemplateTextfield, 'oscd-edit-dialog': OscdEditDialog, }"
-            },
-            {
-              "kind": "field",
-              "name": "editor",
-              "type": {
-                "text": "Transactor<EditV2>"
-              },
-              "attribute": "editor"
+              "default": "{ 'md-text-button': MdTextButton, 'md-filled-icon-button': MdFilledIconButton, 'md-icon': MdIcon, 'action-list': ActionList, 'oscd-editor-template-textfield': OscdEditorTemplateTextfield, 'oscd-edit-dialog': OscdEditDialog, }"
             },
             {
               "kind": "field",
@@ -67,14 +59,7 @@
             },
             {
               "kind": "field",
-              "name": "docs",
-              "type": {
-                "text": "Record<string, XMLDocument>"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "editCount",
+              "name": "docVersion",
               "type": {
                 "text": "unknown"
               }
@@ -393,15 +378,6 @@
               }
             }
           ],
-          "attributes": [
-            {
-              "name": "editor",
-              "type": {
-                "text": "Transactor<EditV2>"
-              },
-              "fieldName": "editor"
-            }
-          ],
           "mixins": [
             {
               "name": "ScopedElementsMixin",
@@ -442,7 +418,7 @@
                 "text": "object"
               },
               "static": true,
-              "default": "{ 'md-outlined-field': MdOutlinedField, 'md-button': MdOutlinedButton, 'md-icon-button': MdIconButton, 'md-menu': MdMenu, 'md-switch': MdSwitch, 'md-list-item': MdListItem, }"
+              "default": "{ 'md-outlined-field': MdOutlinedField, 'md-icon-button': MdIconButton, 'md-menu': MdMenu, 'md-switch': MdSwitch, 'md-list-item': MdListItem, }"
             },
             {
               "kind": "field",
