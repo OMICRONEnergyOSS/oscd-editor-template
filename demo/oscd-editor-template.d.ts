@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult } from 'lit';
-import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
+import { MdTextButton } from '@scopedelement/material-web/button/MdTextButton.js';
 import { MdFilledIconButton } from '@scopedelement/material-web/iconbutton/MdFilledIconButton.js';
 import { MdIcon } from '@scopedelement/material-web/icon/MdIcon.js';
 import { OscdEditorTemplateTextfield } from './components/OscdEditorTemplateTextfield.js';
@@ -10,7 +10,7 @@ declare const OscdEditorTemplate_base: typeof LitElement & import("@open-wc/scop
 /** An editor [[`plugin`]] for editing the `DataTypeTemplates` section. */
 export default class OscdEditorTemplate extends OscdEditorTemplate_base {
     static scopedElements: {
-        'md-outline-button': typeof MdOutlinedButton;
+        'md-text-button': typeof MdTextButton;
         'md-filled-icon-button': typeof MdFilledIconButton;
         'md-icon': typeof MdIcon;
         'action-list': typeof ActionList;

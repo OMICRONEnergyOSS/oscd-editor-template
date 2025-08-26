@@ -1,6 +1,5 @@
 import { MdSwitch } from '@scopedelement/material-web/switch/MdSwtich.js';
 import { MdMenu } from '@scopedelement/material-web/menu/MdMenu.js';
-import { MdOutlinedButton } from '@scopedelement/material-web/button/MdOutlinedButton.js';
 import { MdIconButton } from '@scopedelement/material-web/iconbutton/MdIconButton.js';
 import { MdOutlinedField } from '@scopedelement/material-web/field/MdOutlinedField.js';
 import { MdOutlinedTextField } from '@scopedelement/material-web/textfield/MdOutlinedTextField.js';
@@ -9,7 +8,6 @@ declare const OscdEditorTemplateTextfield_base: typeof MdOutlinedTextField & imp
 export declare class OscdEditorTemplateTextfield extends OscdEditorTemplateTextfield_base {
     static scopedElements: {
         'md-outlined-field': typeof MdOutlinedField;
-        'md-button': typeof MdOutlinedButton;
         'md-icon-button': typeof MdIconButton;
         'md-menu': typeof MdMenu;
         'md-switch': typeof MdSwitch;
