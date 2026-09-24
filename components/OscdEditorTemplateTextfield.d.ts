@@ -1,17 +1,19 @@
-import { MdSwitch } from '@scopedelement/material-web/switch/MdSwtich.js';
-import { MdMenu } from '@scopedelement/material-web/menu/MdMenu.js';
-import { MdIconButton } from '@scopedelement/material-web/iconbutton/MdIconButton.js';
-import { MdOutlinedField } from '@scopedelement/material-web/field/MdOutlinedField.js';
-import { MdOutlinedTextField } from '@scopedelement/material-web/textfield/MdOutlinedTextField.js';
-import { MdListItem } from '@scopedelement/material-web/list/MdListItem.js';
-declare const OscdEditorTemplateTextfield_base: typeof MdOutlinedTextField & import("@open-wc/scoped-elements/lit-element.js").ScopedElementsHostConstructor;
+import { OscdSwitch } from '@omicronenergy/oscd-ui/switch/OscdSwitch.js';
+import { OscdMenu } from '@omicronenergy/oscd-ui/menu/OscdMenu.js';
+import { OscdIconButton } from '@omicronenergy/oscd-ui/iconbutton/OscdIconButton.js';
+import { OscdIcon } from '@omicronenergy/oscd-ui/icon/OscdIcon.js';
+import { OscdOutlinedField } from '@omicronenergy/oscd-ui/field/OscdOutlinedField.js';
+import { OscdOutlinedTextField } from '@omicronenergy/oscd-ui/textfield/OscdOutlinedTextField.js';
+import { OscdListItem } from '@omicronenergy/oscd-ui/list/OscdListItem.js';
+declare const OscdEditorTemplateTextfield_base: typeof OscdOutlinedTextField & import("@open-wc/scoped-elements/lit-element.js").ScopedElementsHostConstructor;
 export declare class OscdEditorTemplateTextfield extends OscdEditorTemplateTextfield_base {
     static scopedElements: {
-        'md-outlined-field': typeof MdOutlinedField;
-        'md-icon-button': typeof MdIconButton;
-        'md-menu': typeof MdMenu;
-        'md-switch': typeof MdSwitch;
-        'md-list-item': typeof MdListItem;
+        'oscd-outlined-field': typeof OscdOutlinedField;
+        'oscd-icon-button': typeof OscdIconButton;
+        'oscd-icon': typeof OscdIcon;
+        'oscd-menu': typeof OscdMenu;
+        'oscd-switch': typeof OscdSwitch;
+        'oscd-list-item': typeof OscdListItem;
     };
     /** A potentially `nullable` `TextField` that allows for selection of an SI
      * `multiplier` if an SI `unit` is given.
@@ -39,9 +41,9 @@ export declare class OscdEditorTemplateTextfield extends OscdEditorTemplateTextf
     /** Additional values that cause validation to fail. */
     reservedValues: string[];
     private disabledSwitch;
-    nullSwitch?: MdSwitch;
-    multiplierMenu?: MdMenu;
-    multiplierButton?: MdIconButton;
+    nullSwitch?: OscdSwitch;
+    multiplierMenu?: OscdMenu;
+    multiplierButton?: OscdIconButton;
     private nulled;
     private selectMultiplier;
     private enable;

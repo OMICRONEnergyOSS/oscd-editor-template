@@ -1,21 +1,21 @@
 import { LitElement, TemplateResult } from 'lit';
-import { MdTextButton } from '@scopedelement/material-web/button/MdTextButton.js';
-import { MdFilledIconButton } from '@scopedelement/material-web/iconbutton/MdFilledIconButton.js';
-import { MdIcon } from '@scopedelement/material-web/icon/MdIcon.js';
+import { OscdTextButton } from '@omicronenergy/oscd-ui/button/OscdTextButton.js';
+import { OscdFilledIconButton } from '@omicronenergy/oscd-ui/iconbutton/OscdFilledIconButton.js';
+import { OscdIcon } from '@omicronenergy/oscd-ui/icon/OscdIcon.js';
 import { OscdEditorTemplateTextfield } from './components/OscdEditorTemplateTextfield.js';
-import { ActionList } from '@openenergytools/filterable-lists/dist/ActionList.js';
-import OscdEditDialog from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
-import type { CreateWizard, EditWizard } from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
+import { OscdActionList } from '@omicronenergy/oscd-ui/action-list/OscdActionList.js';
+import OscdSclDialogs from '@omicronenergy/oscd-scl-dialogs/OscdSclDialogs.js';
+import type { CreateWizard, EditWizard } from '@omicronenergy/oscd-scl-dialogs/OscdSclDialogs.js';
 declare const OscdEditorTemplate_base: typeof LitElement & import("@open-wc/scoped-elements/lit-element.js").ScopedElementsHostConstructor;
 /** An editor [[`plugin`]] for editing the `DataTypeTemplates` section. */
 export default class OscdEditorTemplate extends OscdEditorTemplate_base {
     static scopedElements: {
-        'md-text-button': typeof MdTextButton;
-        'md-filled-icon-button': typeof MdFilledIconButton;
-        'md-icon': typeof MdIcon;
-        'action-list': typeof ActionList;
+        'oscd-text-button': typeof OscdTextButton;
+        'oscd-filled-icon-button': typeof OscdFilledIconButton;
+        'oscd-icon': typeof OscdIcon;
+        'oscd-action-list': typeof OscdActionList;
         'oscd-editor-template-textfield': typeof OscdEditorTemplateTextfield;
-        'oscd-edit-dialog': typeof OscdEditDialog;
+        'oscd-scl-dialogs': typeof OscdSclDialogs;
     };
     /** The document being edited as provided to plugins by [[`OpenSCD`]]. */
     doc: XMLDocument;
@@ -34,7 +34,7 @@ export default class OscdEditorTemplate extends OscdEditorTemplate_base {
     daTypeInputs?: OscdEditorTemplateTextfield[];
     enumTypeDiff: boolean;
     enumTypeInputs?: OscdEditorTemplateTextfield[];
-    editDialog?: OscdEditDialog;
+    editDialog?: OscdSclDialogs;
     private onLNodeTypeInputChange;
     private onSaveLNodeType;
     private onDOTypeInputChange;
