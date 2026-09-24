@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
+ 
 import { expect, fixture, html } from '@open-wc/testing';
 import OscdEditorTemplate from './oscd-editor-template.js';
 

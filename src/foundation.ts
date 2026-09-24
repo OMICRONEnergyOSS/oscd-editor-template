@@ -65,9 +65,9 @@ export const styles = css`
   h1 > nav,
   h2 > nav,
   h3 > nav,
-  h1 > abbr > md-filled-icon-button,
-  h2 > abbr > md-filled-icon-button,
-  h3 > abbr > md-filled-icon-button {
+  h1 > abbr > oscd-filled-icon-button,
+  h2 > abbr > oscd-filled-icon-button,
+  h3 > abbr > oscd-filled-icon-button {
     float: right;
   }
 

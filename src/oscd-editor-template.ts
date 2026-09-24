@@ -5,16 +5,16 @@ import { classMap } from 'lit/directives/class-map.js';
 import { styles } from './foundation.js';
 import { EditV2 } from '@omicronenergy/oscd-api';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements/lit-element.js';
-import { MdTextButton } from '@scopedelement/material-web/button/MdTextButton.js';
-import { MdFilledIconButton } from '@scopedelement/material-web/iconbutton/MdFilledIconButton.js';
-import { MdIcon } from '@scopedelement/material-web/icon/MdIcon.js';
+import { OscdTextButton } from '@omicronenergy/oscd-ui/button/OscdTextButton.js';
+import { OscdFilledIconButton } from '@omicronenergy/oscd-ui/iconbutton/OscdFilledIconButton.js';
+import { OscdIcon } from '@omicronenergy/oscd-ui/icon/OscdIcon.js';
 import { OscdEditorTemplateTextfield } from './components/OscdEditorTemplateTextfield.js';
-import { ActionList } from '@openenergytools/filterable-lists/dist/ActionList.js';
-import OscdEditDialog from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
+import { OscdActionList } from '@omicronenergy/oscd-ui/action-list/OscdActionList.js';
+import OscdSclDialogs from '@omicronenergy/oscd-scl-dialogs/OscdSclDialogs.js';
 import type {
   CreateWizard,
   EditWizard,
-} from '@omicronenergy/oscd-edit-dialog/OscdEditDialog.js';
+} from '@omicronenergy/oscd-scl-dialogs/OscdSclDialogs.js';
 import { newEditEventV2 } from '@omicronenergy/oscd-api/utils.js';
 
 /** An editor [[`plugin`]] for editing the `DataTypeTemplates` section. */
@@ -22,12 +22,12 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
   LitElement,
 ) {
   static scopedElements = {
-    'md-text-button': MdTextButton,
-    'md-filled-icon-button': MdFilledIconButton,
-    'md-icon': MdIcon,
-    'action-list': ActionList,
+    'oscd-text-button': OscdTextButton,
+    'oscd-filled-icon-button': OscdFilledIconButton,
+    'oscd-icon': OscdIcon,
+    'oscd-action-list': OscdActionList,
     'oscd-editor-template-textfield': OscdEditorTemplateTextfield,
-    'oscd-edit-dialog': OscdEditDialog,
+    'oscd-scl-dialogs': OscdSclDialogs,
   };
 
   /** The document being edited as provided to plugins by [[`OpenSCD`]]. */
@@ -72,7 +72,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
 
   @queryAll('.enumtype.input') enumTypeInputs?: OscdEditorTemplateTextfield[];
 
-  @query('oscd-edit-dialog') editDialog?: OscdEditDialog;
+  @query('oscd-scl-dialogs') editDialog?: OscdSclDialogs;
 
   private onLNodeTypeInputChange(): void {
     const lNodeType = this.selectedLNodeType;
@@ -361,11 +361,11 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
         EnumType
         <nav>
           <abbr title="add">
-            <md-filled-icon-button
+            <oscd-filled-icon-button
               @click="${() => {
                 this.selectedEnumType = undefined;
               }}"
-              ><md-icon>close</md-icon></md-filled-icon-button
+              ><oscd-icon>close</oscd-icon></oscd-filled-icon-button
             >
           </abbr>
         </nav>
@@ -395,29 +395,29 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           @input="${this.onEnumTypeInputChange}"
         ></oscd-editor-template-textfield>
         <div class="save">
-          <md-text-button
+          <oscd-text-button
             ?disabled=${!this.enumTypeDiff}
             @click="${this.onSaveEnumType}"
-            ><md-icon slot="icon">save</md-icon>Save</md-text-button
+            ><oscd-icon slot="icon">save</oscd-icon>Save</oscd-text-button
           >
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <md-text-button
+          <oscd-text-button
             @click=${() =>
               this.handleCreateElement({
                 parent: this.selectedEnumType!,
                 tagName: 'EnumVal',
               })}
-            ><md-icon slot="icon">playlist_add</md-icon>Add
-            EnumVal</md-text-button
+            ><oscd-icon slot="icon">playlist_add</oscd-icon>Add
+            EnumVal</oscd-text-button
           >
         </div>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter EnumVal"
-        ></action-list>
+        ></oscd-action-list>
       </div>
     </section>`;
   }
@@ -444,7 +444,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           EnumType
           <nav>
             <abbr title="add">
-              <md-filled-icon-button
+              <oscd-filled-icon-button
                 @click=${() => {
                   if (this.dataTypeTemplate) {
                     this.handleCreateElement({
@@ -453,16 +453,16 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
                     });
                   }
                 }}
-                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+                ><oscd-icon>playlist_add</oscd-icon></oscd-filled-icon-button
               >
             </abbr>
           </nav>
         </h1>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter EnumType"
-        ></action-list>
+        ></oscd-action-list>
       </section>
     `;
   }
@@ -493,11 +493,11 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
         DAType
         <nav>
           <abbr title="add">
-            <md-filled-icon-button
+            <oscd-filled-icon-button
               @click="${() => {
                 this.selectedDAType = undefined;
               }}"
-              ><md-icon>close</md-icon></md-filled-icon-button
+              ><oscd-icon>close</oscd-icon></oscd-filled-icon-button
             >
           </abbr>
         </nav>
@@ -527,29 +527,29 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           @input="${this.onDATypeInputChange}"
         ></oscd-editor-template-textfield>
         <div class="save">
-          <md-text-button
+          <oscd-text-button
             ?disabled=${!this.daTypeDiff}
             @click="${this.onSaveDAType}"
-            ><md-icon slot="icon">save</md-icon>Save</md-text-button
+            ><oscd-icon slot="icon">save</oscd-icon>Save</oscd-text-button
           >
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <md-text-button
+          <oscd-text-button
             @click=${() =>
               this.handleCreateElement({
                 parent: this.selectedDAType!,
                 tagName: 'BDA',
               })}
-            ><md-icon slot="icon">playlist_add</md-icon>Add Data
-            Attribute</md-text-button
+            ><oscd-icon slot="icon">playlist_add</oscd-icon>Add Data
+            Attribute</oscd-text-button
           >
         </div>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter BDA"
-        ></action-list>
+        ></oscd-action-list>
       </div>
     </section> `;
   }
@@ -576,7 +576,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           DAType
           <nav>
             <abbr title="add">
-              <md-filled-icon-button
+              <oscd-filled-icon-button
                 @click="${() => {
                   if (this.dataTypeTemplate) {
                     this.handleCreateElement({
@@ -585,16 +585,16 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
                     });
                   }
                 }}"
-                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+                ><oscd-icon>playlist_add</oscd-icon></oscd-filled-icon-button
               >
             </abbr>
           </nav>
         </h1>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter DAType"
-        ></action-list>
+        ></oscd-action-list>
       </section>
     `;
   }
@@ -628,11 +628,11 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
         DOType
         <nav>
           <abbr title="add">
-            <md-filled-icon-button
+            <oscd-filled-icon-button
               @click="${() => {
                 this.selectedDOType = undefined;
               }}"
-              ><md-icon>close</md-icon></md-filled-icon-button
+              ><oscd-icon>close</oscd-icon></oscd-filled-icon-button
             >
           </abbr>
         </nav>
@@ -669,15 +669,15 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           @input="${this.onDOTypeInputChange}"
         ></oscd-editor-template-textfield>
         <div class="save">
-          <md-text-button
+          <oscd-text-button
             ?disabled=${!this.doTypeDiff}
             @click="${this.onSaveDOType}"
-            ><md-icon slot="icon">save</md-icon>Save</md-text-button
+            ><oscd-icon slot="icon">save</oscd-icon>Save</oscd-text-button
           >
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <md-text-button
+          <oscd-text-button
             icon="playlist_add"
             label="Add Data Object"
             @click="${() =>
@@ -685,24 +685,24 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
                 parent: this.selectedDOType!,
                 tagName: 'SDO',
               })}"
-            ><md-icon slot="icon">playlist_add</md-icon>Add Data
-            Object</md-text-button
+            ><oscd-icon slot="icon">playlist_add</oscd-icon>Add Data
+            Object</oscd-text-button
           >
-          <md-text-button
+          <oscd-text-button
             @click="${() =>
               this.handleCreateElement({
                 parent: this.selectedDOType!,
                 tagName: 'DA',
               })}"
-            ><md-icon slot="icon">playlist_add</md-icon>Add Data
-            Attribute</md-text-button
+            ><oscd-icon slot="icon">playlist_add</oscd-icon>Add Data
+            Attribute</oscd-text-button
           >
         </div>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter DA/SDO"
-        ></action-list>
+        ></oscd-action-list>
       </div>
     </section>`;
   }
@@ -730,7 +730,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           DOType
           <nav>
             <abbr title="add">
-              <md-filled-icon-button
+              <oscd-filled-icon-button
                 @click="${() => {
                   if (this.dataTypeTemplate) {
                     this.handleCreateElement({
@@ -739,16 +739,16 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
                     });
                   }
                 }}"
-                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+                ><oscd-icon>playlist_add</oscd-icon></oscd-filled-icon-button
               >
             </abbr>
           </nav>
         </h1>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter DOType"
-        ></action-list>
+        ></oscd-action-list>
       </section>
     `;
   }
@@ -782,11 +782,11 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
         LNodeType
         <nav>
           <abbr title="add">
-            <md-filled-icon-button
+            <oscd-filled-icon-button
               @click="${() => {
                 this.selectedLNodeType = undefined;
               }}"
-              ><md-icon>close</md-icon></md-filled-icon-button
+              ><oscd-icon>close</oscd-icon></oscd-filled-icon-button
             >
           </abbr>
         </nav>
@@ -817,29 +817,29 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           @input="${this.onLNodeTypeInputChange}"
         ></oscd-editor-template-textfield>
         <div class="save">
-          <md-text-button
+          <oscd-text-button
             ?disabled=${!this.lNodeTypeDiff}
             @click="${this.onSaveLNodeType}"
-            ><md-icon slot="icon">save</md-icon>Save</md-text-button
+            ><oscd-icon slot="icon">save</oscd-icon>Save</oscd-text-button
           >
         </div>
         <hr color="lightgrey" />
         <div class="add">
-          <md-text-button
+          <oscd-text-button
             @click=${() =>
               this.handleCreateElement({
                 parent: this.selectedLNodeType!,
                 tagName: 'DO',
               })}
-            ><md-icon slot="icon">playlist_add</md-icon>Add Data
-            Object</md-text-button
+            ><oscd-icon slot="icon">playlist_add</oscd-icon>Add Data
+            Object</oscd-text-button
           >
         </div>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter DO"
-        ></action-list>
+        ></oscd-action-list>
       </div>
     </section>`;
   }
@@ -867,7 +867,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
           LNodeType
           <nav>
             <abbr title="add">
-              <md-filled-icon-button
+              <oscd-filled-icon-button
                 @click="${() => {
                   if (this.dataTypeTemplate) {
                     this.handleCreateElement({
@@ -876,16 +876,16 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
                     });
                   }
                 }}"
-                ><md-icon>playlist_add</md-icon></md-filled-icon-button
+                ><oscd-icon>playlist_add</oscd-icon></oscd-filled-icon-button
               >
             </abbr>
           </nav>
         </h1>
-        <action-list
+        <oscd-action-list
           .items=${items}
           filterable
           searchhelper="filter LNodeType"
-        ></action-list>
+        ></oscd-action-list>
       </section>
     `;
   }
@@ -904,7 +904,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
         ${this.renderDATypeChildrenList()}${this.renderDATypeList()}
         ${this.renderEnumTypeChildrenList()}${this.renderEnumTypeList()}
       </div>
-      <oscd-edit-dialog></oscd-edit-dialog>
+      <oscd-scl-dialogs></oscd-scl-dialogs>
     `;
   }
 
@@ -954,7 +954,7 @@ export default class OscdEditorTemplate extends ScopedElementsMixin(
       justify-content: flex-end;
     }
 
-    div.save > md-text-button {
+    div.save > oscd-text-button {
       margin: 10px;
     }
 

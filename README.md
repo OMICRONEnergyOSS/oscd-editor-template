@@ -10,6 +10,8 @@ This is an editor plugin for [OpenSCD](https://openscd.org). With this plugin yo
 
 ## Linting and formatting
 
+This project uses the shared [`@omicronenergy/oscd-tooling`](https://github.com/OMICRONEnergyOSS/oscd-tooling) CLI (`oscd`) for its dev tooling — see that package's README for the full command reference.
+
 To scan the project for linting and formatting errors, run
 
 ```bash
@@ -23,8 +25,6 @@ npm run format
 ```
 
 ## Testing with Web Test Runner
-
-> Currently there have been no unit tests developed for this plugin.
 
 To execute a single test run:
 
@@ -40,11 +40,14 @@ npm run test:watch
 
 ## Tooling configs
 
-For most of the tools, the configuration is in the `package.json` to reduce the amount of files in your project.
+Build, lint, test, and bundle configuration is centralized in `@omicronenergy/oscd-tooling` and resolved automatically by the `oscd` CLI. This repo only keeps thin, project-relative overrides:
 
-If you customize the configuration a lot, you can consider moving them to individual files.
+- `tsconfig.json` extends `@omicronenergy/oscd-tooling/configs/base.tsconfig.json`, setting only `outDir`/`rootDir`/`include`.
+- `eslint.config.js` re-exports `@omicronenergy/oscd-tooling/configs/eslint.config.js` unchanged.
 
-## Local Demo with `web-dev-server`
+To fully customize a tool's configuration, drop a same-named config file (e.g. `rollup.config.js`) at the repo root — `oscd` will use it instead of the shared default.
+
+## Local Demo
 
 ```bash
 npm run start

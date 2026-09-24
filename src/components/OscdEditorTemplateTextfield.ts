@@ -1,23 +1,25 @@
 import { html } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
-import { MdSwitch } from '@scopedelement/material-web/switch/MdSwtich.js';
-import { MdMenu } from '@scopedelement/material-web/menu/MdMenu.js';
-import { MdIconButton } from '@scopedelement/material-web/iconbutton/MdIconButton.js';
+import { OscdSwitch } from '@omicronenergy/oscd-ui/switch/OscdSwitch.js';
+import { OscdMenu } from '@omicronenergy/oscd-ui/menu/OscdMenu.js';
+import { OscdIconButton } from '@omicronenergy/oscd-ui/iconbutton/OscdIconButton.js';
+import { OscdIcon } from '@omicronenergy/oscd-ui/icon/OscdIcon.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements/lit-element.js';
-import { MdOutlinedField } from '@scopedelement/material-web/field/MdOutlinedField.js';
-import { MdOutlinedTextField } from '@scopedelement/material-web/textfield/MdOutlinedTextField.js';
-import { MdListItem } from '@scopedelement/material-web/list/MdListItem.js';
+import { OscdOutlinedField } from '@omicronenergy/oscd-ui/field/OscdOutlinedField.js';
+import { OscdOutlinedTextField } from '@omicronenergy/oscd-ui/textfield/OscdOutlinedTextField.js';
+import { OscdListItem } from '@omicronenergy/oscd-ui/list/OscdListItem.js';
 
 export class OscdEditorTemplateTextfield extends ScopedElementsMixin(
-  MdOutlinedTextField,
+  OscdOutlinedTextField,
 ) {
   static scopedElements = {
-    'md-outlined-field': MdOutlinedField,
-    'md-icon-button': MdIconButton,
-    'md-menu': MdMenu,
-    'md-switch': MdSwitch,
-    'md-list-item': MdListItem,
+    'oscd-outlined-field': OscdOutlinedField,
+    'oscd-icon-button': OscdIconButton,
+    'oscd-icon': OscdIcon,
+    'oscd-menu': OscdMenu,
+    'oscd-switch': OscdSwitch,
+    'oscd-list-item': OscdListItem,
   };
   /** A potentially `nullable` `TextField` that allows for selection of an SI
    * `multiplier` if an SI `unit` is given.
@@ -104,11 +106,11 @@ export class OscdEditorTemplateTextfield extends ScopedElementsMixin(
   // FIXME: workaround to allow disable of the whole component - need basic refactor
   private disabledSwitch = false;
 
-  @query('md-switch') nullSwitch?: MdSwitch;
+  @query('oscd-switch') nullSwitch?: OscdSwitch;
 
-  @query('md-menu') multiplierMenu?: MdMenu;
+  @query('oscd-menu') multiplierMenu?: OscdMenu;
 
-  @query('md-icon-button') multiplierButton?: MdIconButton;
+  @query('oscd-icon-button') multiplierButton?: OscdIconButton;
 
   private nulled: string | null = null;
 
@@ -165,18 +167,18 @@ export class OscdEditorTemplateTextfield extends ScopedElementsMixin(
   renderUnitSelector() {
     if (this.multipliers.length && this.unit) {
       return html`<div style="position:relative;">
-        <md-icon-button
+        <oscd-icon-button
           style="margin:5px;"
           ?disabled=${this.null || this.disabledSwitch}
           @click=${() => this.multiplierMenu?.show()}
         >
-          <md-icon>more</md-icon>
-        </md-icon-button>
-        <md-menu
+          <oscd-icon>more</oscd-icon>
+        </oscd-icon-button>
+        <oscd-menu
           @selected=${this.selectMultiplier}
           fixed
           .anchor=${this.multiplierButton?.id ?? ''}
-          >${this.renderMulplierList()}</md-menu
+          >${this.renderMulplierList()}</oscd-menu
         >
       </div>`;
     }
@@ -187,25 +189,25 @@ export class OscdEditorTemplateTextfield extends ScopedElementsMixin(
   renderMulplierList() {
     return html`${this.multipliers.map(
       multiplier =>
-        html`<md-list-item ?selected=${multiplier === this.multiplier}
+        html`<oscd-list-item ?selected=${multiplier === this.multiplier}
           >${multiplier === null
             ? 'textfield.noMultiplier'
-            : multiplier}</md-list-item
+            : multiplier}</oscd-list-item
         >`,
     )}`;
   }
 
   renderSwitch() {
     if (this.nullable) {
-      return html`<md-switch
+      return html`<oscd-switch
         style="margin-left: 12px;"
         ?selected=${this.null}
         ?disabled=${this.disabledSwitch}
         @click=${(event: Event) => {
-          this.null = (event.target as MdSwitch)?.selected ?? false;
+          this.null = (event.target as OscdSwitch)?.selected ?? false;
           this.dispatchEvent(new Event('input'));
         }}
-      ></md-switch>`;
+      ></oscd-switch>`;
     }
     return html``;
   }
